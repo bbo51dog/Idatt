@@ -21,3 +21,30 @@ suite "Lexer":
     for i, token in tokens:
       assertToken(expectTokens[i], token)
 
+  test "tokenize statements":
+    let tokens = """
+    let foo = 1 + 2;
+    fun bar() {
+      return "bar";
+    }
+    """.tokenizeString
+    let expectTokens = [
+      TokenType.Let.newToken,
+      TokenType.Identifier.newToken("foo"),
+      TokenType.Assign.newToken,
+      TokenType.Int.newToken($1),
+      TokenType.Add.newToken,
+      TokenType.Int.newToken($2),
+      TokenType.Semicolon.newToken,
+      TokenType.Fun.newToken,
+      TokenType.Identifier.newToken("bar"),
+      TokenType.LParen.newToken,
+      TokenType.RParen.newToken,
+      TokenType.LBrace.newToken,
+      TokenType.Return.newToken,
+      TokenType.String.newToken("bar"),
+      TokenType.Semicolon.newToken,
+      TokenType.RBrace.newToken
+    ]
+    for i, token in tokens:
+      assertToken(expectTokens[i], token)
