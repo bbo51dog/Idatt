@@ -11,11 +11,8 @@ proc newLexer(stream: Stream): Lexer =
 
 proc readWord(lexer: Lexer, current: char): string =
   var str = $current
-  while not isEmptyOrWhitespace(lexer.stream.peekStr(1)):
-    if lexer.stream.peekChar.isAlphaNumeric or lexer.stream.peekChar == '_':
-      str &= lexer.stream.readStr(1)
-    else:
-      return
+  while lexer.stream.peekChar.isAlphaNumeric or lexer.stream.peekChar == '_':
+    str &= lexer.stream.readStr(1)
   str
 
 proc readDigits(lexer: Lexer, current: char): string =
@@ -48,6 +45,8 @@ proc nextToken(lexer: Lexer) =
       tokenType = TokenType.Mul
     of '/':
       tokenType = TokenType.Div
+    of ';':
+      tokenType = TokenType.Semicolon
     of ':':
       tokenType = TokenType.Colon
     of '.':
@@ -97,7 +96,8 @@ proc nextToken(lexer: Lexer) =
       if current.isAlphaAscii:
         let word = lexer.readWord(current)
         tokenType = RESERVED.getOrDefault(word, TokenType.Identifier)
-        value = word
+        if tokenType == TokenType.Identifier:
+          value = word
       elif current.isDigit:
         value = lexer.readDigits(current)
         tokenType = TokenType.Int
