@@ -36,7 +36,7 @@ type
 
   Token* = ref object
     tokenType*: TokenType
-    value: string
+    value*: string
 
 const RESERVED* = {
   "let": TokenType.Let,

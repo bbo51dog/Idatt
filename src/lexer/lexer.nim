@@ -9,8 +9,8 @@ proc newLexer(stream: Stream): Lexer =
   new result
   result.stream = stream
 
-proc readWord(lexer: Lexer): string =
-  var str = ""
+proc readWord(lexer: Lexer, current: char): string =
+  var str = $current
   while not isEmptyOrWhitespace(lexer.stream.peekStr(1)):
     if lexer.stream.peekChar.isAlphaNumeric or lexer.stream.peekChar == '_':
       str &= lexer.stream.readStr(1)
@@ -18,16 +18,14 @@ proc readWord(lexer: Lexer): string =
       return
   str
 
-proc readDigits(lexer: Lexer): string =
-  var str = ""
-  while not isEmptyOrWhitespace(lexer.stream.peekStr(1)) and
-      lexer.stream.peekChar.isDigit:
+proc readDigits(lexer: Lexer, current: char): string =
+  var str = $current
+  while lexer.stream.peekChar.isDigit:
     str &= lexer.stream.readStr(1)
   str
 
-proc readString(lexer: Lexer): string =
+proc readString(lexer: Lexer, separator: char): string =
   var str = ""
-  let separator = lexer.stream.readChar
   while lexer.stream.peekChar != separator:
     str &= lexer.stream.readStr(1)
   discard lexer.stream.readChar
@@ -40,7 +38,8 @@ proc nextToken(lexer: Lexer) =
       return
   var tokenType: TokenType
   var value: string
-  case lexer.stream.peekChar:
+  let current = lexer.stream.readChar
+  case current:
     of '+':
       tokenType = TokenType.Add
     of '-':
@@ -68,44 +67,43 @@ proc nextToken(lexer: Lexer) =
     of ']':
       tokenType = TokenType.RBracket
     of '=':
-      if lexer.stream.peekStr(2) == "==":
+      if lexer.stream.peekChar == '=':
         tokenType = TokenType.Equal
         discard lexer.stream.readChar
       else:
         tokenType = TokenType.Assign
     of '!':
-      if lexer.stream.peekStr(2) == "!=":
+      if lexer.stream.peekChar == '=':
         tokenType = TokenType.NotEqual
         discard lexer.stream.readChar
       else:
         tokenType = TokenType.Not
     of '>':
-      if lexer.stream.peekStr(2) == ">=":
+      if lexer.stream.peekChar == '=':
         tokenType = TokenType.GE
         discard lexer.stream.readChar
       else:
         tokenType = TokenType.GT
     of '<':
-      if lexer.stream.peekStr(2) == "<=":
+      if lexer.stream.peekChar == '=':
         tokenType = TokenType.LE
         discard lexer.stream.readChar
       else:
         tokenType = TokenType.LT
     of '\'', '"':
       tokenType = TokenType.String
-      value = lexer.readString()
+      value = lexer.readString(current)
     else:
-      if lexer.stream.peekChar.isAlphaAscii:
-        let word = lexer.readWord
+      if current.isAlphaAscii:
+        let word = lexer.readWord(current)
         tokenType = RESERVED.getOrDefault(word, TokenType.Identifier)
         value = word
-      elif lexer.stream.peekChar.isDigit:
-        value = lexer.readDigits
+      elif current.isDigit:
+        value = lexer.readDigits(current)
         tokenType = TokenType.Int
       else:
         tokenType = TokenType.Unknown
   lexer.tokens.add tokenType.newToken(value)
-  discard lexer.stream.readChar
 
 proc tokenize(lexer: Lexer) =
   while not lexer.stream.atEnd:
