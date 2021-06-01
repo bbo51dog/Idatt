@@ -3,6 +3,7 @@ import tables
 type
   TokenType* {.pure.} = enum
     Unknown
+    EOF
     Int
     String
     Identifier

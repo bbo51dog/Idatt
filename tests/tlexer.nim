@@ -17,6 +17,7 @@ suite "Lexer":
       TokenType.RParen.newToken,
       TokenType.Mul.newToken,
       TokenType.Int.newToken($7),
+      TokenType.EOF.newToken,
     ]
     for i, token in tokens:
       assertToken(expectTokens[i], token)
@@ -44,7 +45,8 @@ suite "Lexer":
       TokenType.Return.newToken,
       TokenType.String.newToken("bar"),
       TokenType.Semicolon.newToken,
-      TokenType.RBrace.newToken
+      TokenType.RBrace.newToken,
+      TokenType.EOF.newToken,
     ]
     for i, token in tokens:
       assertToken(expectTokens[i], token)

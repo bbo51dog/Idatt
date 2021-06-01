@@ -108,6 +108,7 @@ proc nextToken(lexer: Lexer) =
 proc tokenize(lexer: Lexer) =
   while not lexer.stream.atEnd:
     lexer.nextToken
+  lexer.tokens.add TokenType.EOF.newToken
   lexer.stream.close
 
 proc tokenizeString*(input: string): seq[Token] =
